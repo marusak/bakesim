@@ -6,6 +6,7 @@
 
 #include "simlib.h"
 #include <iostream>
+#include <ctime>
 
 #define MINIMALNE_MIESANIE      60*20
 #define MAXIMALNE_MIESANIE      60*25
@@ -130,6 +131,7 @@ class Generator : public Event {
 };
 
 int main() {
+    RandomSeed(time(NULL));
     SetOutput("output.out");
     Init(0,SIMULACIA);
     (new Generator)->Activate();

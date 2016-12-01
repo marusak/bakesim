@@ -35,6 +35,9 @@ Store  Chladenie("Chladenie", 1500);
 
 Histogram ChliebCas("Doba pecenia chleba", 3800, 60, 10);
 
+int dobre_chleby = 0;
+int zle_chleby = 0;
+
 class Chlieb : public Process {
     double Prichod;
 
@@ -65,6 +68,11 @@ class Chlieb : public Process {
         Enter(Chladenie);
         Wait(Exponential(DOBA_CHLADENIE));
         Leave(Chladenie);
+
+        if (Random() <= 0.01)
+            zle_chleby++;
+        else
+            dobre_chleby++;
 
     }
 };
@@ -147,6 +155,8 @@ int main() {
     Init(0,SIMULACIA);
     (new NoveMiesanie)->Activate();
     Run();
+    std::cout<<"Spravne upecenych chlebov: "<<dobre_chleby<<std::endl;
+    std::cout<<"Chleby nevyhovujuce:       "<<zle_chleby<<std::endl;
     Mixer.Output();
     Rolovacka.Output();
     PredKysnutie.Output();

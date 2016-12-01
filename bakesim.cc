@@ -8,12 +8,13 @@
 #include <iostream>
 #include <ctime>
 
-#define MINIMALNE_MIESANIE      60*20
-#define MAXIMALNE_MIESANIE      60*25
+#define MINIMALNE_MIESANIE      60*30
+#define MAXIMALNE_MIESANIE      60*35
+#define PRIPRAVA_MIXU           60*3
+#define OD_MIXERU_K_MIXERU      60*2
 #define DOBA_VYBERANIA_CESTA    60*5
 #define POCET_CHLEBOV_Z_CESTA_M 88
 #define POCET_CHLEBOV_Z_CESTA_H 91
-#define NOVE_MIESANIE           60*20
 #define SIMULACIA               60*60*12
 #define DOBA_DELENIA            4
 #define DOBA_ROLOVANIA          8
@@ -24,24 +25,22 @@
 #define DOBA_PECENIA            60*35
 #define DOBA_CHLADENIE          60*60*3
 
-//Facility  Delicka("Delicka");
 //-n pocet chlebov za noc
 //-t cas z aktory upiect
-//Miesat za zaklade ineho miesania a nie po random dobe
 //Statistika delicky
 //Obcas sa chlieb pokazi + statistika pokazenych chelbov
 //Statistika za aky cas dopecene
 //
 
-Store  Mixer("Mixer", 5);
-Store  Rolovacka("Rolovacka", 4);
+Store  Mixer("Mixer", 4);
+Store  Rolovacka("Rolovacka", 3);
 Store  PredKysnutie("PredKysnutie", 300);
 Store  Kysnutie("Kysnutie", 450);
 Store  Osatka("Osatka", 1000);
-Store  Pec("Pec", 400);
+Store  Pec("Pec", 600);
 Store  Chladenie("Chladenie", 1500);
 
-Histogram ChliebCas("Doba pecenia chleba", 4000, 60, 10);
+Histogram ChliebCas("Doba pecenia chleba", 3800, 60, 10);
 
 class Chlieb : public Process {
     double Prichod;
@@ -50,7 +49,7 @@ class Chlieb : public Process {
         Prichod = Time;
 
         Enter(Rolovacka);
-        Wait(DOBA_ROLOVANIA);//EXP?
+        Wait(DOBA_ROLOVANIA);
         Leave(Rolovacka);
 
         Enter(PredKysnutie);
@@ -88,8 +87,8 @@ class Delicka : public Event {
             working = 1;
             in--;
             free_capacity++;
-            (new Chlieb)->Activate();
             Activate(in_time+DOBA_DELENIA);
+            (new Chlieb)->Activate();
         }
         else
             working = 0;
@@ -107,26 +106,26 @@ class Delicka : public Event {
         }
 };
 
-class Cesto : public Process {
-    double Prichod;
-    Delicka *d = new Delicka();//cleanup
+Facility Miesac("Chlap co miesa");
 
-    void Behavior(){
-        Prichod = Time;
+int maximum_ciest = 18;
+Delicka *d = new Delicka();//cleanup
+
+class NoveMiesanie : public Process {
+    void Behavior() {
         Enter(Mixer);//Zober volny mixer
-        Wait(Uniform(MINIMALNE_MIESANIE, MAXIMALNE_MIESANIE));//Naloz suroviny a mixuj
+        Seize(Miesac);//Zaber miesaca
+        maximum_ciest--;
+        Wait(Exponential(PRIPRAVA_MIXU));//Naloz suroviny a zapni mixer
+        Release(Miesac);
+        if (maximum_ciest > 0){
+            (new NoveMiesanie)->Activate(Time+Exponential(OD_MIXERU_K_MIXERU));
+        }
         Wait(Exponential(DOBA_VYBERANIA_CESTA));//Vyloz do delicky
+        Seize(Miesac, HIGHEST_PRIORITY);
         d->Insert_new(Uniform(POCET_CHLEBOV_Z_CESTA_M, POCET_CHLEBOV_Z_CESTA_H));
         Leave(Mixer);
-    }
-};
-
-class Generator : public Event {
-    int maximum_ciest = 18;
-    void Behavior() {
-        (new Cesto)->Activate();
-        if (--maximum_ciest)
-            Activate(Time+Exponential(NOVE_MIESANIE));
+        Release(Miesac);
     }
 };
 
@@ -134,7 +133,7 @@ int main() {
     RandomSeed(time(NULL));
     SetOutput("output.out");
     Init(0,SIMULACIA);
-    (new Generator)->Activate();
+    (new NoveMiesanie)->Activate();
     Run();
     Mixer.Output();
     //Delicka.Output();

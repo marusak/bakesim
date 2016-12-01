@@ -25,13 +25,6 @@
 #define DOBA_PECENIA            60*35
 #define DOBA_CHLADENIE          60*60*3
 
-//-n pocet chlebov za noc
-//-t cas z aktory upiect
-//Statistika delicky
-//Obcas sa chlieb pokazi + statistika pokazenych chelbov
-//Statistika za aky cas dopecene
-//
-
 Store  Mixer("Mixer", 4);
 Store  Rolovacka("Rolovacka", 3);
 Store  PredKysnutie("PredKysnutie", 300);

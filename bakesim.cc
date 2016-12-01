@@ -69,11 +69,17 @@ class Chlieb : public Process {
     }
 };
 
-
+/*
+ * Deli cesto na jednotlive bochniky.
+ */
 class Delicka : public Event {
+    //Maximalna volna kapacita
     int free_capacity = 250;
+    //Prave bochnikov vo zasobniku cesta
     int in = 0;
+    //Prebieha delenie
     int working = 0;
+
     void Behavior() {
         if (in){
             double in_time = Time;
@@ -87,35 +93,48 @@ class Delicka : public Event {
             working = 0;
     }
     public:
+        // Ziskaj volnu kapacitu v zasobniku
         int Free_capacity(){
             return free_capacity;
         }
 
+        /* Vlozenie cesta do delicky
+         */
         void Insert_new(int n){
             free_capacity -= n;
             in += n;
+            //Ak delicka nepracovala, zapni ju
             if (!working)
                 Activate();
         }
 };
 
+/* Pracovnik obslushujuci mixery*/
 Facility Miesac("Chlap co miesa");
 
+/* Pocet ciest, ktore chceme vymiesat*/
 int maximum_ciest = 18;
-Delicka *d = new Delicka();//cleanup
 
+Delicka *d = new Delicka();//TODO cleanup
+
+/*
+ * Miesanie cesta.
+ * Potrebuje mixer, pracovnika
+ */
 class NoveMiesanie : public Process {
     void Behavior() {
         Enter(Mixer);//Zober volny mixer
         Seize(Miesac);//Zaber miesaca
         maximum_ciest--;
         Wait(Exponential(PRIPRAVA_MIXU));//Naloz suroviny a zapni mixer
-        Release(Miesac);
+        Release(Miesac);//Pocas miesania nie je pracovnik potrebny
         if (maximum_ciest > 0){
+            //Ak este treba, pracovnik prechadza k dalsiemu mixeru
             (new NoveMiesanie)->Activate(Time+Exponential(OD_MIXERU_K_MIXERU));
         }
-        Wait(Exponential(DOBA_VYBERANIA_CESTA));//Vyloz do delicky
+        Wait(Exponential(DOBA_VYBERANIA_CESTA));//Vymiesanie cesta
         Seize(Miesac, HIGHEST_PRIORITY);
+        //Vylozenie do delicky
         d->Insert_new(Uniform(POCET_CHLEBOV_Z_CESTA_M, POCET_CHLEBOV_Z_CESTA_H));
         Leave(Mixer);
         Release(Miesac);
@@ -129,7 +148,6 @@ int main() {
     (new NoveMiesanie)->Activate();
     Run();
     Mixer.Output();
-    //Delicka.Output();
     Rolovacka.Output();
     PredKysnutie.Output();
     Kysnutie.Output();

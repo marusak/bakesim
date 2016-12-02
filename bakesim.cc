@@ -41,6 +41,34 @@ Histogram CestoCas("Doba pripravy cesta", 600, 60, 10);
 
 int dobre_chleby = 0;
 int zle_chleby = 0;
+int all_mixed = 0;
+int all_baked = 0;
+
+/*
+ * Deli cesto na jednotlive bochniky.
+ */
+class Delicka : public Event {
+    //Maximalna volna kapacita
+    int free_capacity = 1250;
+    //Prave bochnikov vo zasobniku cesta
+    int in = 0;
+    //Prebieha delenie
+    int working = 0;
+
+    int max_used = 0;
+    int insert_requests = 0;
+    int insert_volume = 0;
+    double working_time = 0.0;
+
+    void Behavior();
+    public:
+        int Free_capacity();
+        int In();
+        void Insert_new(int n);
+        void Output();
+};
+
+Delicka *d = new Delicka();//TODO cleanup
 
 class Chlieb : public Process {
     double Prichod;
@@ -69,84 +97,79 @@ class Chlieb : public Process {
         Leave(Osatka);
 
         ChliebCas(Time-Prichod);
-        Enter(Chladenie);
-        Wait(Exponential(DOBA_CHLADENIE));
-        Leave(Chladenie);
 
         if (Random() <= 0.01)
             zle_chleby++;
         else
             dobre_chleby++;
 
+        if (all_mixed && !d->In() && PredKysnutie.Empty() && Kysnutie.Empty() && Pec.Empty()){
+            std::cout<<"Vsetky chleby upecene v case: "<<Time<<"s"<<std::endl;
+            all_baked = 1;
+        }
+
+        Enter(Chladenie);
+        Wait(Exponential(DOBA_CHLADENIE));
+        Leave(Chladenie);
+        if (all_baked and Chladenie.Empty()){
+            std::cout<<"Vsetky chleby vychladene. Koncim simulaciu v case: "<<Time<<"s"<<std::endl;
+            Stop();
+        }
     }
 };
 
-/*
- * Deli cesto na jednotlive bochniky.
+void Delicka::Behavior() {
+    if (in){
+        double in_time = Time;
+        working = 1;
+        in--;
+        free_capacity++;
+        working_time += DOBA_DELENIA;
+        Activate(in_time+DOBA_DELENIA);
+        (new Chlieb)->Activate();
+    }
+    else
+        working = 0;
+}
+
+int Delicka::Free_capacity(){
+    return free_capacity;
+}
+
+int Delicka::In(){
+    return in;
+}
+
+/* Vlozenie cesta do delicky
  */
-class Delicka : public Event {
-    //Maximalna volna kapacita
-    int free_capacity = 1250;
-    //Prave bochnikov vo zasobniku cesta
-    int in = 0;
-    //Prebieha delenie
-    int working = 0;
+void Delicka::Insert_new(int n){
+    free_capacity -= n;
+    in += n;
+    insert_requests++;
+    insert_volume += n;
+    if (in > max_used)
+        max_used = in;
+    //Ak delicka nepracovala, zapni ju
+    if (!working)
+        Activate();
+}
 
-    int max_used = 0;
-    int insert_requests = 0;
-    int insert_volume = 0;
-    double working_time = 0.0;
-
-    void Behavior() {
-        if (in){
-            double in_time = Time;
-            working = 1;
-            in--;
-            free_capacity++;
-            working_time += DOBA_DELENIA;
-            Activate(in_time+DOBA_DELENIA);
-            (new Chlieb)->Activate();
-        }
-        else
-            working = 0;
-    }
-    public:
-        // Ziskaj volnu kapacitu v zasobniku
-        int Free_capacity(){
-            return free_capacity;
-        }
-
-        /* Vlozenie cesta do delicky
-         */
-        void Insert_new(int n){
-            free_capacity -= n;
-            in += n;
-            insert_requests++;
-            insert_volume += n;
-            if (in > max_used)
-                max_used = in;
-            //Ak delicka nepracovala, zapni ju
-            if (!working)
-                Activate();
-        }
-
-        void Output(){
-              char s[100];
-              Print("+----------------------------------------------------------+\n");
-              Print("| FACILITY with storage %-34s |\n","Delicka");
-              Print("+----------------------------------------------------------+\n");
-              sprintf(s," Status = %s ", (working) ? "BUSY" : "not BUSY");
-              Print("| %-56s |\n",s);
-              sprintf(s," Time interval = %g - %g ",0.0, (double)Time);
-              Print(  "| %-56s |\n", s);
-              Print(  "|  Capacity of storage = %-27ld       |\n", free_capacity + in);
-              Print(  "|  Maximal items in storage = %-22ld       |\n", max_used);
-              Print(  "|  Number of input requests = %-22ld       |\n", insert_requests);
-              Print(  "|  Average input volume = %-26g       |\n", (double)insert_volume/insert_requests);
-              Print(  "|  Average utilization = %-27g       |\n", working_time/Time);
-              Print("+----------------------------------------------------------+\n\n");
-        }
-};
+void Delicka::Output(){
+      char s[100];
+      Print("+----------------------------------------------------------+\n");
+      Print("| FACILITY with storage %-34s |\n","Delicka");
+      Print("+----------------------------------------------------------+\n");
+      sprintf(s," Status = %s ", (working) ? "BUSY" : "not BUSY");
+      Print("| %-56s |\n",s);
+      sprintf(s," Time interval = %g - %g ",0.0, (double)Time);
+      Print(  "| %-56s |\n", s);
+      Print(  "|  Capacity of storage = %-27ld       |\n", free_capacity + in);
+      Print(  "|  Maximal items in storage = %-22ld       |\n", max_used);
+      Print(  "|  Number of input requests = %-22ld       |\n", insert_requests);
+      Print(  "|  Average input volume = %-26g       |\n", (double)insert_volume/insert_requests);
+      Print(  "|  Average utilization = %-27g       |\n", working_time/Time);
+      Print("+----------------------------------------------------------+\n\n");
+}
 
 /* Pracovnik obslushujuci mixery*/
 Facility Miesac("Chlap co miesa");
@@ -154,7 +177,6 @@ Facility Miesac("Chlap co miesa");
 /* Pocet ciest, ktore chceme vymiesat*/
 int maximum_ciest = 30;
 
-Delicka *d = new Delicka();//TODO cleanup
 
 /*
  * Miesanie cesta.
@@ -164,7 +186,7 @@ class NoveMiesanie : public Process {
     void Behavior() {
         Enter(Mixer);//Zober volny mixer
         Seize(Miesac);//Zaber miesaca
-        maximum_ciest--;
+        int my_id = maximum_ciest--;
         double zaciatok = Time;
         Wait(Uniform(PRIPRAVA_MIXU_MIN, PRIPRAVA_MIXU_MAX));//Naloz suroviny a zapni mixer
         Release(Miesac);//Pocas miesania nie je pracovnik potrebny
@@ -186,6 +208,8 @@ class NoveMiesanie : public Process {
         Leave(Mixer);
         Release(Miesac);
         CestoCas(Time - zaciatok);
+        if (my_id == 1)
+            all_mixed = 1;
     }
 };
 

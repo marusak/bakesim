@@ -92,12 +92,18 @@ class Delicka : public Event {
     //Prebieha delenie
     int working = 0;
 
+    int max_used = 0;
+    int insert_requests = 0;
+    int insert_volume = 0;
+    double working_time = 0.0;
+
     void Behavior() {
         if (in){
             double in_time = Time;
             working = 1;
             in--;
             free_capacity++;
+            working_time += DOBA_DELENIA;
             Activate(in_time+DOBA_DELENIA);
             (new Chlieb)->Activate();
         }
@@ -115,9 +121,30 @@ class Delicka : public Event {
         void Insert_new(int n){
             free_capacity -= n;
             in += n;
+            insert_requests++;
+            insert_volume += n;
+            if (in > max_used)
+                max_used = in;
             //Ak delicka nepracovala, zapni ju
             if (!working)
                 Activate();
+        }
+
+        void Output(){
+              char s[100];
+              Print("+----------------------------------------------------------+\n");
+              Print("| FACILITY with storage %-34s |\n","Delicka");
+              Print("+----------------------------------------------------------+\n");
+              sprintf(s," Status = %s ", (working) ? "BUSY" : "not BUSY");
+              Print("| %-56s |\n",s);
+              sprintf(s," Time interval = %g - %g ",0.0, (double)Time);
+              Print(  "| %-56s |\n", s);
+              Print(  "|  Capacity of storage = %-27ld       |\n", free_capacity + in);
+              Print(  "|  Maximal items in storage = %-22ld       |\n", max_used);
+              Print(  "|  Number of input requests = %-22ld       |\n", insert_requests);
+              Print(  "|  Average input volume = %-26g       |\n", (double)insert_volume/insert_requests);
+              Print(  "|  Average utilization = %-27g       |\n", working_time/Time);
+              Print("+----------------------------------------------------------+\n\n");
         }
 };
 
@@ -135,7 +162,6 @@ Delicka *d = new Delicka();//TODO cleanup
  */
 class NoveMiesanie : public Process {
     void Behavior() {
-        int my_id = maximum_ciest;
         Enter(Mixer);//Zober volny mixer
         Seize(Miesac);//Zaber miesaca
         maximum_ciest--;
@@ -160,7 +186,6 @@ class NoveMiesanie : public Process {
         Leave(Mixer);
         Release(Miesac);
         CestoCas(Time - zaciatok);
-        std::cout<<"Cesto no. "<<my_id<<" time "<<Time-zaciatok<<std::endl;
     }
 };
 
@@ -173,6 +198,7 @@ int main() {
     std::cout<<"Spravne upecenych chlebov: "<<dobre_chleby<<std::endl;
     std::cout<<"Chleby nevyhovujuce:       "<<zle_chleby<<std::endl;
     Mixer.Output();
+    d->Output();
     Rolovacka.Output();
     PredKysnutie.Output();
     Kysnutie.Output();

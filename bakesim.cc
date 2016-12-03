@@ -27,7 +27,7 @@ Store  Pec("Pec", 600);
 Store  Chladenie("Chladenie", 1500);
 
 Histogram ChliebCas("Doba pecenia chleba", 3800, 60, 10);
-Histogram CestoCas("Doba pripravy cesta", 600, 60, 10);
+Histogram CestoCas("Doba pripravy cesta", 350, 60, 10);
 
 int dobre_chleby = 0;
 int zle_chleby = 0;

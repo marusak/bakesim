@@ -150,7 +150,8 @@ void NoveMiesanie::Behavior() {
     }
     Wait(Uniform(MINIMALNE_MIESANIE, MAXIMALNE_MIESANIE));//Vymiesanie cesta
     //Prednostne vyberie cesto pred pripravou noveho
-    Seize(Miesac, HIGHEST_PRIORITY);
+    Priority = my_id;
+    Seize(Miesac);
     Wait(Uniform(MINIMALNE_VYBERANIE_CESTA, MAXIMALNE_VYBERANIE_CESTA));//Vylozenie cesta
     int vymiesane = Uniform(POCET_CHLEBOV_Z_CESTA_M, POCET_CHLEBOV_Z_CESTA_H);
     // Pokial nie je dost miesta, cakaj

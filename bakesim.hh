@@ -39,7 +39,7 @@
 class Delicka : public Event {
     private:
         //Maximalna volna kapacita
-        int free_capacity = 1250;
+        int free_capacity = 300;
         //Prave bochnikov v zasobniku cesta
         int in = 0;
         //Prebieha delenie

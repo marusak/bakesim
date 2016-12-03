@@ -20,7 +20,7 @@ Facility Miesac("Chlap co miesa");
 
 Store  Mixer("Mixer", 4);
 Store  Rolovacka("Rolovacka", 3);
-Store  PredKysnutie("PredKysnutie", 300);
+Store  PredKysnutie("PredKysnutie", 180);
 Store  Kysnutie("Kysnutie", 450);
 Store  Osatka("Osatka", 1000);
 Store  Pec("Pec", 600);

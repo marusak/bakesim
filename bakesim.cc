@@ -24,7 +24,7 @@ Store  PredKysnutie("PredKysnutie", 180);
 Store  Kysnutie("Kysnutie", 360);
 Store  Osatka("Osatka", 1000);
 Store  Pec("Pec", 600);
-Store  Chladenie("Chladenie", 1500);
+Store  Chladenie("Chladenie", 2000);
 
 Histogram ChliebCas("Doba pecenia chleba", 3800, 60, 10);
 Histogram CestoCas("Doba pripravy cesta", 350, 60, 10);

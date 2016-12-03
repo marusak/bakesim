@@ -175,6 +175,7 @@ int main() {
     Run();
     std::cout<<"Spravne upecenych chlebov: "<<dobre_chleby<<std::endl;
     std::cout<<"Chleby nevyhovujuce:       "<<zle_chleby<<std::endl;
+    Miesac.Output();
     Mixer.Output();
     d->Output();
     Rolovacka.Output();

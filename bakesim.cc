@@ -21,20 +21,18 @@
 Facility Pekar("Chlap co miesa");
 
 Store  HnetaciStroj("HnetaciStroj", 4);
-Store  Vyvalovacka("Vyvalovacka", 3);
-Store  PredKysnutie("PredKysnutie", 180);
-Store  Kysnutie("Kysnutie", 360);
+Store  Vyvalovacka("Vyvalovacka", 4);
+Store  PredKysnutie("PredKysnutie", 270);
+Store  Kysnutie("Kysnutie", 650);
 Store  Osatka("Osatka", 1000);
-Store  Pec("Pec", 600);
-Store  Chladenie("Chladenie", 2000);
+Store  Pec("Pec", 650);
 
-Histogram ChliebCas("Doba pecenia chleba", 3800, 60, 10);
-Histogram CestoCas("Doba pripravy cesta", 350, 60, 10);
+Histogram ChliebCas("Doba pecenia chleba", 5900, 60, 20);
+Histogram CestoCas("Doba pripravy cesta", 400, 60, 10);
 
 int dobre_chleby = 0;
 int zle_chleby = 0;
 int all_mixed = 0;
-int all_baked = 0;
 
 /* Pocet ciest, ktore chceme vymiesat*/
 int maximum_ciest = 30;
@@ -58,11 +56,12 @@ void Chlieb::Behavior(){
     Wait(Uniform(MINIMALNE_KYSNUTIE, MAXIMALNE_KYSNUTIE));
     Leave(Kysnutie);
 
+    Leave(Osatka);
+
     Enter(Pec);
     Wait(DOBA_PECENIA);
     Leave(Pec);
 
-    Leave(Osatka);
 
     ChliebCas(Time-Prichod);
 
@@ -72,17 +71,10 @@ void Chlieb::Behavior(){
         dobre_chleby++;
 
     if (all_mixed && !d->In() && PredKysnutie.Empty() && Kysnutie.Empty() && Pec.Empty()){
-        std::cout<<"Vsetky chleby upecene v case: "<<Time<<"s"<<std::endl;
-        all_baked = 1;
-    }
-
-    Enter(Chladenie);
-    Wait(Exponential(DOBA_CHLADENIE));
-    Leave(Chladenie);
-    if (all_baked and Chladenie.Empty()){
-        std::cout<<"Vsetky chleby vychladene. Koncim simulaciu v case: "<<Time<<"s"<<std::endl;
+        std::cout<<"Vsetky chleby upecene v case: "<<Time<<"s. Koncime simulaciu."<<std::endl;
         Stop();
     }
+
 }
 
 void Delicka::Behavior() {
@@ -91,8 +83,9 @@ void Delicka::Behavior() {
         working = 1;
         in--;
         free_capacity++;
-        working_time += DOBA_DELENIA;
-        Activate(in_time+DOBA_DELENIA);
+        double delenie = Uniform(DOBA_DELENIA_MIN, DOBA_DELENIA_MAX);
+        working_time += delenie;
+        Activate(in_time+delenie);
         (new Chlieb)->Activate();
     }
     else
@@ -229,7 +222,6 @@ int main(int argc, char *argv[]) {
     Kysnutie.Output();
     Osatka.Output();
     Pec.Output();
-    Chladenie.Output();
     ChliebCas.Output();
     CestoCas.Output();
     return 0;

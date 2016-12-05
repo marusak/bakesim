@@ -21,17 +21,17 @@
 #define MIN_OD_MIXERU_K_MIXERU      60*1
 #define MINIMALNE_VYBERANIE_CESTA   60*2
 #define MAXIMALNE_VYBERANIE_CESTA   60*3
-#define POCET_CHLEBOV_Z_CESTA_M     88
-#define POCET_CHLEBOV_Z_CESTA_H     91
+#define POCET_CHLEBOV_Z_CESTA_M     98
+#define POCET_CHLEBOV_Z_CESTA_H     102
 #define SIMULACIA                   60*60*12
-#define DOBA_DELENIA                4
+#define DOBA_DELENIA_MIN            2
+#define DOBA_DELENIA_MAX            7
 #define DOBA_VYVALOVANIA            8
-#define MINIMALNE_PREDKYSNUTIE      60*10
-#define MAXIMALNE_PREDKYSNUTIE      60*12
-#define MINIMALNE_KYSNUTIE          60*20
-#define MAXIMALNE_KYSNUTIE          60*25
-#define DOBA_PECENIA                60*35
-#define DOBA_CHLADENIE              60*60*3
+#define MINIMALNE_PREDKYSNUTIE      60*15
+#define MAXIMALNE_PREDKYSNUTIE      60*20
+#define MINIMALNE_KYSNUTIE          60*40
+#define MAXIMALNE_KYSNUTIE          60*50
+#define DOBA_PECENIA                60*45
 
 /*
  * Deli cesto na jednotlive bochniky.
@@ -39,7 +39,7 @@
 class Delicka : public Event {
     private:
         //Maximalna volna kapacita
-        int free_capacity = 300;
+        int free_capacity = 400;
         //Prave bochnikov v zasobniku cesta
         int in = 0;
         //Prebieha delenie

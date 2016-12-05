@@ -18,7 +18,7 @@
 
 Facility Miesac("Chlap co miesa");
 
-Store  Mixer("Mixer", 4);
+Store  HnetaciStroj("HnetaciStroj", 4);
 Store  Rolovacka("Rolovacka", 3);
 Store  PredKysnutie("PredKysnutie", 180);
 Store  Kysnutie("Kysnutie", 360);
@@ -138,7 +138,7 @@ void Delicka::Output(){
 
 
 void NoveMiesanie::Behavior() {
-    Enter(Mixer);//Zober volny mixer
+    Enter(HnetaciStroj);//Zober volny mixer
     Seize(Miesac);//Zaber miesaca
     int my_id = maximum_ciest--;
     double zaciatok = Time;
@@ -160,7 +160,7 @@ void NoveMiesanie::Behavior() {
     }
     //Vylozenie do delicky
     d->Insert_new(vymiesane);
-    Leave(Mixer);
+    Leave(HnetaciStroj);
     Release(Miesac);
     CestoCas(Time - zaciatok);
     if (my_id == 1)
@@ -176,7 +176,7 @@ int main() {
     std::cout<<"Spravne upecenych chlebov: "<<dobre_chleby<<std::endl;
     std::cout<<"Chleby nevyhovujuce:       "<<zle_chleby<<std::endl;
     Miesac.Output();
-    Mixer.Output();
+    HnetaciStroj.Output();
     d->Output();
     Rolovacka.Output();
     PredKysnutie.Output();

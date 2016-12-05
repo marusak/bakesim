@@ -19,7 +19,7 @@
 Facility Miesac("Chlap co miesa");
 
 Store  HnetaciStroj("HnetaciStroj", 4);
-Store  Rolovacka("Rolovacka", 3);
+Store  Vyvalovacka("Vyvalovacka", 3);
 Store  PredKysnutie("PredKysnutie", 180);
 Store  Kysnutie("Kysnutie", 360);
 Store  Osatka("Osatka", 1000);
@@ -42,9 +42,9 @@ Delicka *d = new Delicka();//TODO cleanup
 void Chlieb::Behavior(){
     Prichod = Time;
 
-    Enter(Rolovacka);
-    Wait(DOBA_ROLOVANIA);
-    Leave(Rolovacka);
+    Enter(Vyvalovacka);
+    Wait(DOBA_VYVALOVANIA);
+    Leave(Vyvalovacka);
 
     Enter(PredKysnutie);
     Wait(Uniform(MINIMALNE_PREDKYSNUTIE, MAXIMALNE_PREDKYSNUTIE));
@@ -178,7 +178,7 @@ int main() {
     Miesac.Output();
     HnetaciStroj.Output();
     d->Output();
-    Rolovacka.Output();
+    Vyvalovacka.Output();
     PredKysnutie.Output();
     Kysnutie.Output();
     Osatka.Output();

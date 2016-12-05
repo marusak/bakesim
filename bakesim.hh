@@ -25,7 +25,7 @@
 #define POCET_CHLEBOV_Z_CESTA_H     91
 #define SIMULACIA                   60*60*12
 #define DOBA_DELENIA                4
-#define DOBA_ROLOVANIA              8
+#define DOBA_VYVALOVANIA            8
 #define MINIMALNE_PREDKYSNUTIE      60*10
 #define MAXIMALNE_PREDKYSNUTIE      60*12
 #define MINIMALNE_KYSNUTIE          60*20

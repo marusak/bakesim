@@ -21,7 +21,7 @@
 
 Facility Pekar("Chlap co miesa");
 
-Store  Dize("Dize", 10);
+Store  Dize("Dize", 9);
 Store  HnetaciStroj("Hnetaci Stroj", 3);
 Store  Vyvalovacka("Vyvalovaci stroj", 4);
 Store  Kysnutie("Kysnutie", 730);

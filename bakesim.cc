@@ -50,7 +50,7 @@ void Chlieb::Behavior(){
     Enter(Osatka);
 
     Enter(Kysnutie);
-    Wait(Uniform(MINIMALNE_KYSNUTIE, MAXIMALNE_KYSNUTIE));
+    Wait(DOBA_KYSNUTIE);
     Leave(Kysnutie);
 
     Leave(Osatka);

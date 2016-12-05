@@ -29,8 +29,7 @@
 #define DOBA_VYVALOVANIA            8
 #define MINIMALNE_PREDKYSNUTIE      60*15
 #define MAXIMALNE_PREDKYSNUTIE      60*20
-#define MINIMALNE_KYSNUTIE          60*40
-#define MAXIMALNE_KYSNUTIE          60*50
+#define DOBA_KYSNUTIE               60*45
 #define DOBA_PECENIA                60*45
 
 /*

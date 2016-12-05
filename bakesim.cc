@@ -20,15 +20,15 @@
 
 Facility Pekar("Chlap co miesa");
 
-Store  HnetaciStroj("HnetaciStroj", 4);
-Store  Vyvalovacka("Vyvalovacka", 4);
-Store  PredKysnutie("PredKysnutie", 270);
-Store  Kysnutie("Kysnutie", 650);
+Store  Dize("Dize", 10);
+Store  HnetaciStroj("Hnetaci Stroj", 3);
+Store  Vyvalovacka("Vyvalovaci stroj", 4);
+Store  Kysnutie("Kysnutie", 730);
 Store  Osatka("Osatka", 1000);
-Store  Pec("Pec", 650);
+Store  Pec("Pec", 730);
 
-Histogram ChliebCas("Doba pecenia chleba", 5900, 60, 20);
-Histogram CestoCas("Doba pripravy cesta", 400, 60, 10);
+Histogram ChliebCas("Doba pecenia chleba", 5000, 60, 15);
+Histogram CestoCas("Doba pripravy cesta", 1250, 60, 15);
 
 int dobre_chleby = 0;
 int zle_chleby = 0;
@@ -45,10 +45,6 @@ void Chlieb::Behavior(){
     Enter(Vyvalovacka);
     Wait(DOBA_VYVALOVANIA);
     Leave(Vyvalovacka);
-
-    Enter(PredKysnutie);
-    Wait(Uniform(MINIMALNE_PREDKYSNUTIE, MAXIMALNE_PREDKYSNUTIE));
-    Leave(PredKysnutie);
 
     Enter(Osatka);
 
@@ -70,7 +66,7 @@ void Chlieb::Behavior(){
     else
         dobre_chleby++;
 
-    if (all_mixed && !d->In() && PredKysnutie.Empty() && Kysnutie.Empty() && Pec.Empty()){
+    if (all_mixed && !d->In() && Dize.Empty() && Kysnutie.Empty() && Pec.Empty()){
         std::cout<<"Vsetky chleby upecene v case: "<<Time<<"s. Koncime simulaciu."<<std::endl;
         Stop();
     }
@@ -133,6 +129,7 @@ void Delicka::Output(){
 
 
 void NoveMiesanie::Behavior() {
+    Enter(Dize);
     Enter(HnetaciStroj);//Zober volny mixer
     Seize(Pekar);//Zaber miesaca
     int my_id = maximum_ciest--;
@@ -147,7 +144,10 @@ void NoveMiesanie::Behavior() {
     //Prednostne vyberie cesto pred pripravou noveho
     Priority = my_id;
     Seize(Pekar);
-    Wait(Uniform(MINIMALNE_VYBERANIE_CESTA, MAXIMALNE_VYBERANIE_CESTA));//Vylozenie cesta
+    Wait(Uniform(MINIMALNE_VYBERANIE_CESTA, MAXIMALNE_VYBERANIE_CESTA));//Domiesanie a presun Dize vedla hnetac
+    Leave(HnetaciStroj);
+    Release(Pekar);
+    Wait(Uniform(MINIMALNE_PREDKYSNUTIE, MAXIMALNE_PREDKYSNUTIE));
     int vymiesane = Uniform(POCET_CHLEBOV_Z_CESTA_M, POCET_CHLEBOV_Z_CESTA_H);
     // Pokial nie je dost miesta, cakaj
     while ( d->Free_capacity() < vymiesane){
@@ -155,8 +155,7 @@ void NoveMiesanie::Behavior() {
     }
     //Vylozenie do delicky
     d->Insert_new(vymiesane);
-    Leave(HnetaciStroj);
-    Release(Pekar);
+    Leave(Dize);
     CestoCas(Time - zaciatok);
     if (my_id == 1)
         all_mixed = 1;
@@ -216,9 +215,9 @@ int main(int argc, char *argv[]) {
     std::cout<<"Chleby nevyhovujuce:       "<<zle_chleby<<std::endl;
     Pekar.Output();
     HnetaciStroj.Output();
+    Dize.Output();
     d->Output();
     Vyvalovacka.Output();
-    PredKysnutie.Output();
     Kysnutie.Output();
     Osatka.Output();
     Pec.Output();

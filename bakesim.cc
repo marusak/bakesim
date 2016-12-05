@@ -17,6 +17,7 @@
 #include <ctime>
 #include <unistd.h>
 #include <cmath>
+#include <cstdio>
 
 Facility Pekar("Chlap co miesa");
 
@@ -193,7 +194,7 @@ Argumenty zpracuj_argumenty(int argc, char* argv[]){
                 vytiskni_napovedu();
                 exit(0);
             default:
-                fprintf(stderr, "%s\n", "Neznamy argument!");
+                std::cerr<<"Neznamy argument"<<std::endl;
                 exit(1);
         }
     }

@@ -3,3 +3,9 @@ bakesim: bakesim.cc bakesim.hh
 
 run: bakesim
 	LD_LIBRARY_PATH=/usr/local/lib/ ./bakesim
+
+show: run
+	less bakesim.out
+
+docs.pdf: docs.tex
+	pdflatex $^

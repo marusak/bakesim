@@ -15,6 +15,8 @@
 #include "bakesim.hh"
 #include <iostream>
 #include <ctime>
+#include <unistd.h>
+#include <cmath>
 
 Facility Miesac("Chlap co miesa");
 
@@ -167,10 +169,54 @@ void NoveMiesanie::Behavior() {
         all_mixed = 1;
 }
 
-int main() {
+void vytiskni_napovedu(){
+    printf("help here!\n");
+}
+
+struct Argumenty {
+    int cas;
+    int pocet_chlebu;
+    const char* vystup;
+};
+
+Argumenty zpracuj_argumenty(int argc, char* argv[]){
+    int c;
+    Argumenty argumenty;
+    argumenty.cas = 60 * 60 * 12;
+    argumenty.pocet_chlebu = 1500;
+    argumenty.vystup = "bakesim.out";
+
+    while((c = getopt(argc, argv, "t:n:o:h")) != -1) {
+        switch (c) {
+            case 't':
+                argumenty.cas = 60 * atoi(optarg);
+                break;
+            case 'n':
+                argumenty.pocet_chlebu = atoi(optarg);
+                break;
+            case 'o':
+                argumenty.vystup = optarg;
+                break;
+            case 'h':
+                vytiskni_napovedu();
+                exit(0);
+            default:
+                fprintf(stderr, "%s\n", "Neznamy argument!");
+                exit(1);
+        }
+    }
+
+    return argumenty;
+}
+
+int main(int argc, char *argv[]) {
+    Argumenty argumenty = zpracuj_argumenty(argc, argv);
+
+    maximum_ciest = ceil(((float)argumenty.pocet_chlebu) / POCET_CHLEBOV_Z_CESTA_M);
+
     RandomSeed(time(NULL));
-    SetOutput("output.out");
-    Init(0,SIMULACIA);
+    SetOutput(argumenty.vystup);
+    Init(0, argumenty.cas);
     (new NoveMiesanie)->Activate();
     Run();
     std::cout<<"Spravne upecenych chlebov: "<<dobre_chleby<<std::endl;

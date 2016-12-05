@@ -29,3 +29,5 @@ bakesim
 *.exe
 *.out
 *.app
+
+*.pdf

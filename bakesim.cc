@@ -18,7 +18,7 @@
 #include <unistd.h>
 #include <cmath>
 
-Facility Miesac("Chlap co miesa");
+Facility Pekar("Chlap co miesa");
 
 Store  HnetaciStroj("HnetaciStroj", 4);
 Store  Vyvalovacka("Vyvalovacka", 3);
@@ -141,11 +141,11 @@ void Delicka::Output(){
 
 void NoveMiesanie::Behavior() {
     Enter(HnetaciStroj);//Zober volny mixer
-    Seize(Miesac);//Zaber miesaca
+    Seize(Pekar);//Zaber miesaca
     int my_id = maximum_ciest--;
     double zaciatok = Time;
     Wait(Uniform(PRIPRAVA_MIXU_MIN, PRIPRAVA_MIXU_MAX));//Naloz suroviny a zapni mixer
-    Release(Miesac);//Pocas miesania nie je pracovnik potrebny
+    Release(Pekar);//Pocas miesania nie je pracovnik potrebny
     if (maximum_ciest > 0){
         //Ak este treba, pracovnik prechadza k dalsiemu mixeru
         (new NoveMiesanie)->Activate(Time+MIN_OD_MIXERU_K_MIXERU + Exponential(OD_MIXERU_K_MIXERU));
@@ -153,7 +153,7 @@ void NoveMiesanie::Behavior() {
     Wait(Uniform(MINIMALNE_MIESANIE, MAXIMALNE_MIESANIE));//Vymiesanie cesta
     //Prednostne vyberie cesto pred pripravou noveho
     Priority = my_id;
-    Seize(Miesac);
+    Seize(Pekar);
     Wait(Uniform(MINIMALNE_VYBERANIE_CESTA, MAXIMALNE_VYBERANIE_CESTA));//Vylozenie cesta
     int vymiesane = Uniform(POCET_CHLEBOV_Z_CESTA_M, POCET_CHLEBOV_Z_CESTA_H);
     // Pokial nie je dost miesta, cakaj
@@ -163,7 +163,7 @@ void NoveMiesanie::Behavior() {
     //Vylozenie do delicky
     d->Insert_new(vymiesane);
     Leave(HnetaciStroj);
-    Release(Miesac);
+    Release(Pekar);
     CestoCas(Time - zaciatok);
     if (my_id == 1)
         all_mixed = 1;
@@ -221,7 +221,7 @@ int main(int argc, char *argv[]) {
     Run();
     std::cout<<"Spravne upecenych chlebov: "<<dobre_chleby<<std::endl;
     std::cout<<"Chleby nevyhovujuce:       "<<zle_chleby<<std::endl;
-    Miesac.Output();
+    Pekar.Output();
     HnetaciStroj.Output();
     d->Output();
     Vyvalovacka.Output();

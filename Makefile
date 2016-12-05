@@ -9,3 +9,6 @@ show: run
 
 docs.pdf: docs.tex
 	pdflatex $^
+
+clean:
+	rm bakesim
